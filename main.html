@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-LCA Dashboard | Future Sustainability</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 219, 226, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(76, 175, 80, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(156, 39, 176, 0.05) 0%, transparent 50%);
+            animation: backgroundFloat 20s ease-in-out infinite;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        @keyframes backgroundFloat {
+            0%, 100% { opacity: 1; transform: translateY(0px); }
+            50% { opacity: 0.8; transform: translateY(-20px); }
+        }
+
+        /* Header */
+        .header {
+            padding: 20px 40px;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #4CAF50, #2196F3);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4CAF50, #2196F3, #9C27B0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid rgba(76, 175, 80, 0.3);
+            border-radius: 25px;
+            font-size: 0.9rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #4CAF50;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+        }
+
+        /* Main Dashboard Layout */
+        .dashboard {
+            display: grid;
+            grid-template-columns: 500px 1fr;
+            gap: 30px;
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 30px 40px;
+            min-height: calc(100vh - 120px);
+        }
+
+        /* Left Panel - Input Cards */
+        .input-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .input-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .input-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .input-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(76, 175, 80, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .input-card:hover::before {
+            left: 100%;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .card-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .materials-icon { background: linear-gradient(135deg, #FF6B6B, #FF8E53); }
+        .production-icon { background: linear-gradient(135deg, #4ECDC4, #44A08D); }
+        .transport-icon { background: linear-gradient(135deg, #45B7D1, #96CEB4); }
+        .use-icon { background: linear-gradient(135deg, #F093FB, #F5576C); }
+        .eol-icon { background: linear-gradient(135deg, #4CAF50, #8BC34A); }
+
+        .expand-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease;
+        }
+
+        .card-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .card-content.expanded {
+            max-height: 500px;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+        }
+
+        .input-field {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: #ffffff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #4CAF50;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+        }
+
+        .input-field::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .ai-warning {
+            background: rgba(255, 193, 7, 0.2);
+            border: 1px solid rgba(255, 193, 7, 0.4);
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #FFC107;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ai-suggestion {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid rgba(76, 175, 80, 0.4);
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #4CAF50;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Right Panel - Results */
+        .results-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        /* KPI Tiles */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .kpi-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #4CAF50, #2196F3, #9C27B0, #FF5722);
+            background-size: 400% 100%;
+            animation: gradientShift 3s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #4CAF50, #2196F3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .kpi-label {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .eco-score-card {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(139, 195, 74, 0.2));
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .eco-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid rgba(76, 175, 80, 0.4);
+            border-radius: 25px;
+            padding: 8px 20px;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        /* Charts Section */
+        .chart-section {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .chart-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .chart-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .phase-label {
+            min-width: 120px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .bar-container {
+            flex: 1;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            margin: 0 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 15px;
+            position: relative;
+            transition: width 1s ease-out;
+            background: linear-gradient(90deg, #4CAF50, #2196F3);
+        }
+
+        .bar-value {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #ffffff;
+        }
+
+        .phase-value {
+            min-width: 80px;
+            font-weight: 600;
+            color: #ffffff;
+            text-align: right;
+        }
+
+        /* Control Buttons */
+        .control-panel {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4CAF50, #45A049);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        /* Scenario Toggle */
+        .scenario-toggle {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .toggle-container {
+            display: flex;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 4px;
+        }
+
+        .toggle-option {
+            flex: 1;
+            padding: 12px 20px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .toggle-option.active {
+            background: linear-gradient(135deg, #4CAF50, #45A049);
+            color: white;
+        }
+
+        /* AI Summary */
+        .ai-summary {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+        }
+
+        .summary-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .ai-icon {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #9C27B0, #673AB7);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .summary-text {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+
+        /* Loading Animation */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #4CAF50;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .header {
+                padding: 15px 20px;
+            }
+            
+            .dashboard {
+                padding: 20px;
+            }
+            
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .logo h1 {
+                font-size: 1.5rem;
+            }
+            
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .input-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">🌱</div>
+                <h1>EcoLens</h1>
+            </div>
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                <span>AI System Online</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dashboard -->
+    <div class="dashboard">
+        <!-- Left Panel - Input Cards -->
+        <div class="input-panel">
+            <!-- Raw Materials Card -->
+            <div class="input-card">
+                <div class="card-header" onclick="toggleCard('materials')">
+                    <div class="card-title">
+                        <div class="card-icon materials-icon">🏗️</div>
+                        <span>Raw Materials</span>
+                    </div>
+                    <div class="expand-icon" id="materials-expand">▼</div>
+                </div>
+                <div class="card-content expanded" id="materials-content">
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label class="input-label">Material Type</label>
+                            <select class="input-field" id="material-type" onchange="updateMaterialDefaults(); validateInputs();">
+                                <option value="aluminum">Aluminum</option>
+                                <option value="steel">Steel</option>
+                                <option value="plastic">Plastic (PET)</option>
+                                <option value="glass">Glass</option>
+                                <option value="wood">Wood</option>
+                                <option value="concrete">Concrete</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Weight (kg)</label>
+                            <input type="number" class="input-field" id="material-weight" placeholder="100" oninput="validateInputs();">
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label class="input-label">Recycled Content (%)</label>
+                            <input type="number" class="input-field" id="recycled-content" placeholder="20" min="0" max="100" oninput="validateInputs();">
+                        </div>
+                    </div>
+                    <div id="materials-feedback"></div>
+                </div>
+            </div>
+
+            <!-- Production Card -->
+            <div class="input-card">
+                <div class="card-header" onclick="toggleCard('production')">
+                    <div class="card-title">
+                        <div class="card-icon production-icon">🏭</div>
+                        <span>Production</span>
+                    </div>
+                    <div class="expand-icon" id="production-expand">▼</div>
+                </div>
+                <div class="card-content" id="production-content">
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label class="input-label">Energy Use (kWh)</label>
+                            <input type="number" class="input-field" id="energy-use" placeholder="500" oninput="validateInputs();">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Water Use (L)</label>
+                            <input type="number" class="input-field" id="water-use" placeholder="1000" oninput="validateInputs();">
+                        </div>
+                    </div>
+                    <div id="production-feedback"></div>
+                </div>
+            </div>
+
+            <!-- Transport Card -->
+            <div class="input-card">
+                <div class="card-header" onclick="toggleCard('transport')">
+                    <div class="card-title">
+                        <div class="card-icon transport-icon">🚛</div>
+                        <span>Transport</span>
+                    </div>
+                    <div class="expand-icon" id="transport-expand">▼</div>
+                </div>
+                <div class="card-content" id="transport-content">
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label class="input-label">Transport Mode</label>
+                            <select class="input-field" id="transport-mode" onchange="validateInputs();">
+                                <option value="truck">🚛 Truck</option>
+                                <option value="rail">🚂 Rail</option>
+                                <option value="ship">🚢 Ship</option>
+                                <option value="air">✈️ Air</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Distance (km)</label>
+                            <input type="number" class="input-field" id="transport-distance" placeholder="500" oninput="validateInputs();">
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label class="input-label">Weight (kg)</label>
+                            <input type="number" class="input-field" id="transport-weight" placeholder="100" oninput="validateInputs();">
+                        </div>
+                    </div>
+                    <div id="transport-feedback"></div>
+                </div>
+            </div>
+
+            <!-- Use Phase Card -->
+            <div class="input-card">
+                <div class="card-header" onclick="toggleCard('use')">
+                    <div class="card-title">
+                        <div class="card-icon use-icon">⚡</div>
+                        <span>Use Phase</span>
+                    </div>
+                    <div class="expand-icon" id="use-expand">▼</div>
+                </div>
+                <div class="card-content" id="use-content">
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label class="input-label">Lifespan (years)</label>
+                            <input type="number" class="input-field" id="lifespan" placeholder="10" oninput="validateInputs();">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Power Rating (W)</label>
+                            <input type="number" class="input-field" id="power-rating" placeholder="100" oninput="validateInputs();">
+                        </div>
+                    </div>
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label class="input-label">Usage Hours/Day</label>
+                            <input type="number" class="input-field" id="usage-hours" placeholder="8" min="0" max="24" oninput="validateInputs();">
+                        </div>
+                    </div>
+                    <div id="use-feedback"></div>
+                </div>
+            </div>
+
+            <!-- End of Life Card -->
+            <div class="input-card">
+                <div class="card-header" onclick="toggleCard('endoflife')">
+                    <div class="card-title">
+                        <div class="card-icon eol-icon">♻️</div>
+                        <span>End of Life</span>
+                    </div>
+                    <div class="expand-icon" id="endoflife-expand">▼</div>
+                </div>
+                <div class="card-content" id="endoflife-content">
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label class="input-label">Disposal Method</label>
+                            <select class="input-field" id="disposal-method" onchange="validateInputs();">
+                                <option value="recycling">♻️ Recycling</option>
+                                <option value="landfill">🗑️ Landfill</option>
+                                <option value="incineration">🔥 Incineration</option>
+                                <option value="composting">🌱 Composting</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label">Recyclable Content (%)</label>
+                            <input type="number" class="input-field" id="recyclable-percent" placeholder="80" min="0" max="100" oninput="validateInputs();">
+                        </div>
+                    </div>
+                    <div id="endoflife-feedback"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel - Results -->
+        <div class="results-panel">
+            <!-- Control Panel -->
+            <div class="control-panel">
+                <button class="btn btn-primary" onclick="calculateLCA()">
+                    <span id="calc-icon">🧠</span>
+                    <span id="calc-text">Calculate Impact</span>
+                    <span id="calc-loading" class="loading-spinner hidden"></span>
+                </button>
+                <button class="btn btn-secondary" onclick="exportResults()">
+                    📊 Export Report
+                </button>
+            </div>
+
+            <!-- Scenario Toggle -->
+            <div class="scenario-toggle">
+                <h4 style="margin-bottom: 15px; color: rgba(255, 255, 255, 0.9);">Economic Model</h4>
+                <div class="toggle-container">
+                    <div class="toggle-option active" id="linear-toggle" onclick="toggleScenario('linear')">
+                        📈 Linear Economy
+                    </div>
+                    <div class="toggle-option" id="circular-toggle" onclick="toggleScenario('circular')">
+                        🔄 Circular Economy
+                    </div>
+                </div>
+            </div>
+
+            <!-- KPI Grid -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-value" id="total-co2">0</div>
+                    <div class="kpi-label">Total CO₂ (kg)</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-value" id="total-energy">0</div>
+                    <div class="kpi-label">Energy (MJ)</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-value" id="total-water">0</div>
+                    <div class="kpi-label">Water (L)</div>
+                </div>
+                <div class="kpi-card eco-score-card">
+                    <div class="kpi-value" id="eco-score">A+</div>
+                    <div class="kpi-label">Eco Score</div>
+                    <div class="eco-badge">
+                        <span>🌱</span>
+                        <span id="eco-status">Excellent</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase Breakdown Chart -->
+            <div class="chart-section">
+                <div class="chart-header">
+                    <h3 class="chart-title">Impact by Life Cycle Phase</h3>
+                </div>
+                <div id="phase-chart">
+                    <div class="chart-bar">
+                        <div class="phase-label">Production</div>
+                        <div class="bar-container">
+                            <div class="bar-fill" id="production-bar" style="width: 0%;">
+                                <div class="bar-value" id="production-value">0 kg</div>
+                            </div>
+                        </div>
+                        <div class="phase-value" id="production-percent">0%</div>
+                    </div>
+                    <div class="chart-bar">
+                        <div class="phase-label">Transport</div>
+                        <div class="bar-container">
+                            <div class="bar-fill" id="transport-bar" style="width: 0%;">
+                                <div class="bar-value" id="transport-value">0 kg</div>
+                            </div>
+                        </div>
+                        <div class="phase-value" id="transport-percent">0%</div>
+                    </div>
+                    <div class="chart-bar">
+                        <div class="phase-label">Use Phase</div>
+                        <div class="bar-container">
+                            <div class="bar-fill" id="use-bar" style="width: 0%;">
+                                <div class="bar-value" id="use-value">0 kg</div>
+                            </div>
+                        </div>
+                        <div class="phase-value" id="use-percent">0%</div>
+                    </div>
+                    <div class="chart-bar">
+                        <div class="phase-label">End of Life</div>
+                        <div class="bar-container">
+                            <div class="bar-fill" id="eol-bar" style="width: 0%;">
+                                <div class="bar-value" id="eol-value">0 kg</div>
+                            </div>
+                        </div>
+                        <div class="phase-value" id="eol-percent">0%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Summary -->
+            <div class="ai-summary" id="ai-summary-section" style="display: none;">
+                <div class="summary-header">
+                    <div class="ai-icon">🤖</div>
+                    <h3>AI Analysis</h3>
+                </div>
+                <div class="summary-text" id="ai-summary-text">
+                    Calculate your product's environmental impact to see AI-powered insights and recommendations.
+                </div>
+                <div id="ai-recommendations" style="margin-top: 15px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Emission factors and constants
+        const EMISSION_FACTORS = {
+            materials: {
+                aluminum: 8.2,
+                steel: 2.3,
+                plastic: 2.0,
+                glass: 0.5,
+                wood: 0.1,
+                concrete: 0.4
+            },
+            transport: {
+                truck: 0.12,
+                rail: 0.04,
+                ship: 0.01,
+                air: 0.5
+            },
+            energy: 0.5, // kg CO2/kWh
+            disposal: {
+                landfill: 0.1,
+                incineration: 0.8,
+                recycling: -0.5,
+                composting: 0.05
+            }
+        };
+
+        // Smart defaults for auto-fill
+        const DEFAULTS = {
+            materials: {
+                aluminum: { weight: 100, recycled: 20 },
+                steel: { weight: 150, recycled: 30 },
+                plastic: { weight: 50, recycled: 10 },
+                glass: { weight: 200, recycled: 40 },
+                wood: { weight: 80, recycled: 0 },
+                concrete: { weight: 300, recycled: 5 }
+            },
+            production: {
+                energy: 500,
+                water: 1000
+            },
+            transport: {
+                truck: 500,
+                rail: 1000,
+                ship: 2000,
+                air: 5000
+            },
+            use: {
+                lifespan: 10,
+                power: 100,
+                hours: 8
+            },
+            eol: {
+                recyclable: 80
+            }
+        };
+
+        let currentScenario = 'linear';
+        let currentResults = null;
+
+        // Card toggle functionality
+        function toggleCard(cardName) {
+            const content = document.getElementById(cardName + '-content');
+            const expandIcon = document.getElementById(cardName + '-expand');
+            
+            if (content.classList.contains('expanded')) {
+                content.classList.remove('expanded');
+                expandIcon.textContent = '▶';
+            } else {
+                content.classList.add('expanded');
+                expandIcon.textContent = '▼';
+            }
+        }
+
+        // Auto-fill smart defaults
+        function updateMaterialDefaults() {
+            const materialType = document.getElementById('material-type').value;
+            const defaults = DEFAULTS.materials[materialType];
+            
+            if (!document.getElementById('material-weight').value) {
+                document.getElementById('material-weight').value = defaults.weight;
+            }
+            if (!document.getElementById('recycled-content').value) {
+                document.getElementById('recycled-content').value = defaults.recycled;
+            }
+            
+            // Auto-update transport weight
+            if (!document.getElementById('transport-weight').value) {
+                document.getElementById('transport-weight').value = defaults.weight;
+            }
+        }
+
+        // Scenario toggle
+        function toggleScenario(scenario) {
+            currentScenario = scenario;
+            document.getElementById('linear-toggle').classList.remove('active');
+            document.getElementById('circular-toggle').classList.remove('active');
+            document.getElementById(scenario + '-toggle').classList.add('active');
+            
+            // Recalculate if results exist
+            if (currentResults) {
+                calculateLCA();
+            }
+        }
+
+        // AI-powered input validation and suggestions
+        function validateInputs() {
+            clearAllFeedback();
+            
+            const materialWeight = parseFloat(document.getElementById('material-weight').value);
+            const recycledContent = parseFloat(document.getElementById('recycled-content').value);
+            const energyUse = parseFloat(document.getElementById('energy-use').value);
+            const transportDistance = parseFloat(document.getElementById('transport-distance').value);
+            const transportMode = document.getElementById('transport-mode').value;
+            const powerRating = parseFloat(document.getElementById('power-rating').value);
+            const usageHours = parseFloat(document.getElementById('usage-hours').value);
+            const recyclablePercent = parseFloat(document.getElementById('recyclable-percent').value);
+
+            // Materials validation
+            if (materialWeight > 1000) {
+                showFeedback('materials', 'warning', '⚠️ Unusually high material weight detected. Please verify this value.');
+            }
+            if (recycledContent > 80) {
+                showFeedback('materials', 'suggestion', '💡 Excellent recycled content! This significantly reduces environmental impact by ' + Math.round((recycledContent/100) * 30) + '%.');
+            }
+
+            // Production validation
+            if (energyUse > 1500) {
+                showFeedback('production', 'warning', '⚠️ High energy consumption detected.');
+                showFeedback('production', 'suggestion', '💡 Switch 30% energy to renewables → reduce CO₂ by 35%. Consider solar or wind power integration.');
+            }
+
+            // Transport validation
+            if (transportDistance > 3000) {
+                showFeedback('transport', 'warning', '⚠️ Long transport distance detected.');
+                if (transportMode === 'truck') {
+                    showFeedback('transport', 'suggestion', '💡 Switch from truck to rail transport → reduce CO₂ by 70%. Or consider local suppliers.');
+                } else if (transportMode === 'air') {
+                    showFeedback('transport', 'suggestion', '💡 Air transport has 20x higher emissions than ship. Consider sea freight for 95% CO₂ reduction.');
+                }
+            }
+
+            // Use phase validation
+            if (usageHours > 16) {
+                showFeedback('use', 'warning', '⚠️ Very high daily usage detected. This will significantly impact lifetime emissions.');
+            }
+            if (powerRating > 500) {
+                showFeedback('use', 'suggestion', '💡 High power rating detected. Energy-efficient alternatives could reduce use-phase emissions by 40-60%.');
+            }
+
+            // End of Life validation
+            if (recyclablePercent > 90) {
+                showFeedback('endoflife', 'suggestion', '💡 Outstanding recyclability! This creates a circular economy benefit.');
+            } else if (recyclablePercent < 20) {
+                showFeedback('endoflife', 'warning', '⚠️ Low recyclability may lead to high end-of-life impact.');
+            }
+        }
+
+        function clearAllFeedback() {
+            ['materials', 'production', 'transport', 'use', 'endoflife'].forEach(phase => {
+                document.getElementById(phase + '-feedback').innerHTML = '';
+            });
+        }
+
+        function showFeedback(phase, type, message) {
+            const container = document.getElementById(phase + '-feedback');
+            const className = type === 'warning' ? 'ai-warning' : 'ai-suggestion';
+            container.innerHTML += `<div class="${className}">${message}</div>`;
+        }
+
+        // LCA Calculation Engine
+        function calculateLCA() {
+            // Show loading
+            document.getElementById('calc-icon').style.display = 'none';
+            document.getElementById('calc-text').textContent = 'Processing...';
+            document.getElementById('calc-loading').classList.remove('hidden');
+
+            // Simulate AI processing
+            setTimeout(() => {
+                performCalculation();
+                
+                // Hide loading
+                document.getElementById('calc-icon').style.display = 'inline';
+                document.getElementById('calc-text').textContent = 'Calculate Impact';
+                document.getElementById('calc-loading').classList.add('hidden');
+                
+                // Show AI summary
+                document.getElementById('ai-summary-section').style.display = 'block';
+            }, 2000);
+        }
+
+        function performCalculation() {
+            // Get inputs with smart defaults
+            const materialType = document.getElementById('material-type').value;
+            const materialWeight = parseFloat(document.getElementById('material-weight').value) || DEFAULTS.materials[materialType].weight;
+            const recycledContent = parseFloat(document.getElementById('recycled-content').value) || DEFAULTS.materials[materialType].recycled;
+            
+            const energyUse = parseFloat(document.getElementById('energy-use').value) || DEFAULTS.production.energy;
+            const waterUse = parseFloat(document.getElementById('water-use').value) || DEFAULTS.production.water;
+            
+            const transportMode = document.getElementById('transport-mode').value;
+            const transportDistance = parseFloat(document.getElementById('transport-distance').value) || DEFAULTS.transport[transportMode];
+            const transportWeight = parseFloat(document.getElementById('transport-weight').value) || materialWeight;
+            
+            const lifespan = parseFloat(document.getElementById('lifespan').value) || DEFAULTS.use.lifespan;
+            const powerRating = parseFloat(document.getElementById('power-rating').value) || DEFAULTS.use.power;
+            const usageHours = parseFloat(document.getElementById('usage-hours').value) || DEFAULTS.use.hours;
+            
+            const disposalMethod = document.getElementById('disposal-method').value;
+            const recyclablePercent = parseFloat(document.getElementById('recyclable-percent').value) || DEFAULTS.eol.recyclable;
+
+            // Apply scenario modifiers
+            let scenarioMultiplier = 1;
+            if (currentScenario === 'circular') {
+                scenarioMultiplier = 0.6; // 40% reduction for circular economy
+            }
+
+            // Calculate emissions by phase
+            const materialCO2 = materialWeight * EMISSION_FACTORS.materials[materialType] * (1 - recycledContent/100) * scenarioMultiplier;
+            const productionCO2 = energyUse * EMISSION_FACTORS.energy * scenarioMultiplier;
+            const transportCO2 = transportWeight * transportDistance * EMISSION_FACTORS.transport[transportMode];
+            const useCO2 = (powerRating/1000) * usageHours * 365 * lifespan * EMISSION_FACTORS.energy;
+            const eolCO2 = materialWeight * EMISSION_FACTORS.disposal[disposalMethod] * (recyclablePercent/100);
+
+            const totalCO2 = materialCO2 + productionCO2 + transportCO2 + useCO2 + eolCO2;
+            const totalEnergy = (energyUse * 3.6) + (materialWeight * 15) + (transportDistance * 0.5);
+            const totalWater = waterUse + (materialWeight * 10);
+
+            // Store results
+            currentResults = {
+                totalCO2: Math.max(0, totalCO2),
+                totalEnergy: totalEnergy,
+                totalWater: totalWater,
+                phases: {
+                    materials: Math.max(0, materialCO2),
+                    production: Math.max(0, productionCO2),
+                    transport: Math.max(0, transportCO2),
+                    use: Math.max(0, useCO2),
+                    endoflife: Math.max(0, Math.abs(eolCO2))
+                }
+            };
+
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            const { totalCO2, totalEnergy, totalWater, phases } = currentResults;
+            
+            // Update KPIs
+            document.getElementById('total-co2').textContent = Math.round(totalCO2 * 100) / 100;
+            document.getElementById('total-energy').textContent = Math.round(totalEnergy);
+            document.getElementById('total-water').textContent = Math.round(totalWater);
+            
+            // Calculate and update eco score
+            const ecoScore = calculateEcoScore(totalCO2, totalEnergy, totalWater);
+            document.getElementById('eco-score').textContent = ecoScore;
+            document.getElementById('eco-status').textContent = getEcoStatus(ecoScore);
+            
+            // Update phase chart
+            updatePhaseChart(phases);
+            
+            // Generate AI summary
+            generateAISummary();
+        }
+
+        function calculateEcoScore(co2, energy, water) {
+            const normalizedScore = (co2/100) + (energy/1000) + (water/2000);
+            
+            if (normalizedScore < 2) return 'A+';
+            if (normalizedScore < 4) return 'A';
+            if (normalizedScore < 6) return 'B';
+            if (normalizedScore < 8) return 'C';
+            if (normalizedScore < 12) return 'D';
+            if (normalizedScore < 18) return 'E';
+            return 'F';
+        }
+
+        function getEcoStatus(score) {
+            const statusMap = {
+                'A+': 'Outstanding',
+                'A': 'Excellent',
+                'B': 'Very Good',
+                'C': 'Good',
+                'D': 'Fair',
+                'E': 'Poor',
+                'F': 'Critical'
+            };
+            return statusMap[score] || 'Unknown';
+        }
+
+        function updatePhaseChart(phases) {
+            const maxValue = Math.max(...Object.values(phases));
+            const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#F093FB', '#4CAF50'];
+            
+            Object.entries(phases).forEach(([phase, value], index) => {
+                const percentage = maxValue > 0 ? (value / maxValue) * 100 : 0;
+                const totalPercentage = currentResults.totalCO2 > 0 ? (value / currentResults.totalCO2) * 100 : 0;
+                
+                const barElement = document.getElementById(getPhaseBarId(phase));
+                const valueElement = document.getElementById(getPhaseValueId(phase));
+                const percentElement = document.getElementById(getPhasePercentId(phase));
+                
+                if (barElement && valueElement && percentElement) {
+                    barElement.style.width = percentage + '%';
+                    barElement.style.background = colors[index];
+                    valueElement.textContent = Math.round(value * 100) / 100 + ' kg';
+                    percentElement.textContent = Math.round(totalPercentage) + '%';
+                }
+            });
+        }
+
+        function getPhaseBarId(phase) {
+            const mapping = {
+                'materials': 'materials-bar',
+                'production': 'production-bar',
+                'transport': 'transport-bar',
+                'use': 'use-bar',
+                'endoflife': 'eol-bar'
+            };
+            return mapping[phase];
+        }
+
+        function getPhaseValueId(phase) {
+            const mapping = {
+                'materials': 'materials-value',
+                'production': 'production-value',
+                'transport': 'transport-value',
+                'use': 'use-value',
+                'endoflife': 'eol-value'
+            };
+            return mapping[phase];
+        }
+
+        function getPhasePercentId(phase) {
+            const mapping = {
+                'materials': 'materials-percent',
+                'production': 'production-percent',
+                'transport': 'transport-percent',
+                'use': 'use-percent',
+                'endoflife': 'eol-percent'
+            };
+            return mapping[phase];
+        }
+
+        function generateAISummary() {
+            const { totalCO2, phases } = currentResults;
+            const dominantPhase = Object.entries(phases).reduce((a, b) => a[1] > b[1] ? a : b)[0];
+            const ecoScore = document.getElementById('eco-score').textContent;
+            
+            let summary = `Your product generates approximately ${Math.round(totalCO2)} kg of CO₂ equivalent emissions over its entire lifecycle. `;
+            summary += `The ${dominantPhase.replace('endoflife', 'end-of-life')} phase is your biggest environmental hotspot, contributing ${Math.round((phases[dominantPhase]/totalCO2) * 100)}% of total emissions. `;
+            
+            if (currentScenario === 'circular') {
+                summary += `Using a circular economy approach, you've already reduced emissions by 40%. `;
+            }
+            
+            if (ecoScore === 'A+' || ecoScore === 'A') {
+                summary += `Your eco-score of ${ecoScore} indicates outstanding environmental performance! `;
+            } else if (ecoScore === 'B' || ecoScore === 'C') {
+                summary += `Your eco-score of ${ecoScore} shows good performance with optimization opportunities. `;
+            } else {
+                summary += `Your eco-score of ${ecoScore} indicates significant room for environmental improvements. `;
+            }
+            
+            document.getElementById('ai-summary-text').textContent = summary;
+            
+            // Generate specific recommendations
+            generateRecommendations(dominantPhase, phases);
+        }
+
+        function generateRecommendations(dominantPhase, phases) {
+            const container = document.getElementById('ai-recommendations');
+            container.innerHTML = '';
+            
+            let recommendations = [];
+            
+            if (dominantPhase === 'materials') {
+                recommendations.push('🔄 Increase recycled content to 50%+ → reduce materials impact by 30%');
+                recommendations.push('⚡ Consider bio-based or lower-carbon alternative materials');
+            }
+            
+            if (dominantPhase === 'production') {
+                recommendations.push('🌱 Switch to renewable energy → cut production emissions by 70%');
+                recommendations.push('⚙️ Implement energy efficiency measures → save 20-30% energy');
+            }
+            
+            if (dominantPhase === 'transport') {
+                recommendations.push('🚂 Switch to rail/sea transport → reduce by 60-90%');
+                recommendations.push('📍 Source materials locally → minimize transport distance');
+            }
+            
+            if (dominantPhase === 'use') {
+                recommendations.push('💡 Improve energy efficiency → reduce lifetime emissions by 50%');
+                recommendations.push('🔋 Add renewable energy integration features');
+            }
+            
+            if (dominantPhase === 'endoflife') {
+                recommendations.push('♻️ Design for recyclability → achieve negative end-of-life impact');
+                recommendations.push('🔄 Implement take-back programs → enable circular economy');
+            }
+            
+            // Add circular economy recommendation if in linear mode
+            if (currentScenario === 'linear') {
+                recommendations.push('🔄 Switch to circular economy model → reduce total impact by 40%');
+            }
+            
+            recommendations.forEach(rec => {
+                const recElement = document.createElement('div');
+                recElement.className = 'ai-suggestion';
+                recElement.textContent = rec;
+                container.appendChild(recElement);
+            });
+        }
+
+        // Export functionality
+        function exportResults() {
+            if (!currentResults) {
+                alert('Please calculate results first to export data.');
+                return;
+            }
+            
+            // Create CSV content
+            let csvContent = "Life Cycle Assessment Results\n";
+            csvContent += `Scenario,${currentScenario.charAt(0).toUpperCase() + currentScenario.slice(1)} Economy\n`;
+            csvContent += `Total CO2 (kg),${currentResults.totalCO2.toFixed(2)}\n`;
+            csvContent += `Total Energy (MJ),${currentResults.totalEnergy.toFixed(2)}\n`;
+            csvContent += `Total Water (L),${currentResults.totalWater.toFixed(2)}\n`;
+            csvContent += `Eco Score,${document.getElementById('eco-score').textContent}\n\n`;
+            csvContent += "Phase Breakdown\n";
+            csvContent += "Phase,CO2 Emissions (kg),Percentage\n";
+            
+            Object.entries(currentResults.phases).forEach(([phase, value]) => {
+                const percentage = ((value / currentResults.totalCO2) * 100).toFixed(1);
+                csvContent += `${phase.charAt(0).toUpperCase() + phase.slice(1)},${value.toFixed(2)},${percentage}%\n`;
+            });
+            
+            // Download CSV
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", `lca_report_${Date.now()}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set initial defaults
+            updateMaterialDefaults();
+            
+            // Pre-fill some values for better UX
+            document.getElementById('energy-use').value = DEFAULTS.production.energy;
+            document.getElementById('water-use').value = DEFAULTS.production.water;
+            document.getElementById('transport-distance').value = DEFAULTS.transport.truck;
+            document.getElementById('lifespan').value = DEFAULTS.use.lifespan;
+            document.getElementById('power-rating').value = DEFAULTS.use.power;
+            document.getElementById('usage-hours').value = DEFAULTS.use.hours;
+            document.getElementById('recyclable-percent').value = DEFAULTS.eol.recyclable;
+            
+            // Collapse all cards except materials initially
+            ['production', 'transport', 'use', 'endoflife'].forEach(card => {
+                const content = document.getElementById(card + '-content');
+                const expandIcon = document.getElementById(card + '-expand');
+                content.classList.remove('expanded');
+                expandIcon.textContent = '▶';
+            });
+            
+            // Run initial validation
+            validateInputs();
+        });
+    </script>
+</body>
+</html>bar">
+                        <div class="phase-label">Materials</div>
+                        <div class="bar-container">
+                            <div class="bar-fill" id="materials-bar" style="width: 0%;">
+                                <div class="bar-value" id="materials-value">0 kg</div>
+                            </div>
+                        </div>
+                        <div class="phase-value" id="materials-percent">0%</div>
+                    </div>
+                    <div class="chart-
